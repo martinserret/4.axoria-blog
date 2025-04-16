@@ -19,7 +19,7 @@ export default function Home() {
   return (
     <div className="u-main-container u-padding-content-container">
       <h1 className="t-main-title">Stay up to date with AXORIA</h1>
-      <p className="t-main-subtitle">Tech news and useful knowledge</p>
+      <p className="t-main-subtitle">News and useful knowledge</p>
 
       <p className="text-md text-zinc-900">Latest articles</p>
       <ul className="u-articles-grid">
