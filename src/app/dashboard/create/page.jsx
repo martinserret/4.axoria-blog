@@ -8,11 +8,8 @@ export default function page() {
 
     const formData = new FormData(e.target);
 
-    for (const [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
     const result = await addPost(formData);
+    console.log(result);
   }
 
   return (
