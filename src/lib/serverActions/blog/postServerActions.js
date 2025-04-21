@@ -9,6 +9,11 @@ import { connectToDB } from "@/lib/utils/db/connectToDB";
 import { Post } from "@/lib/models/post";
 import { Tag } from "@/lib/models/tag";
 
+// Création d'un DOM et dans objet window dans le backend. Cette étape est essentielle car les méthodes utilisées pour
+// nettoyer le HTML utilise des méthodes et des propriétés disponibles dans l'objet global window
+const window = new JSDOM("").window;
+const DOMPurify = createDOMPurify(window);
+
 export async function addPost(formData) {
   const { title, markdownArticle, tags } = Object.fromEntries(formData);
 
@@ -36,6 +41,7 @@ export async function addPost(formData) {
 
     //Gestion du markdown
     let markdownHTMLResult = marked(markdownArticle);
+    markdownHTMLResult = DOMPurify.sanitize(markdownHTMLResult); // Purification du HTML des scripts malicieux
 
     // Création d'un post via un modèle
     const newPost = new Post({
@@ -58,3 +64,7 @@ export async function addPost(formData) {
 
 // await Promise.all(): permet de lancer toutes les promises parallèlement et ainsi gagner en performance plutôt que d'attendre qu'une promise soit terminée pour lancer la suivante
 // les promises sont compliquées en JS, il est important de bien les comprendre et de les travailler
+
+// Pour tester une attaque xss, commentez la ligne "markdownHTMLResult = DOMPurify.sanitize(markdownHTMLResult);", 
+// créez un nouvel article avec comme contenu : <img src="x" onerror="alert('XSS')" style="display: none;" />
+// Lorsque vous ouvrez cet article, du javascript est lancé en arrière plan (ici affichage d'une alerte)
