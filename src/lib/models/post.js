@@ -14,7 +14,11 @@ const postSchema = new mongoose.Schema({
   slug: {
     type: String,
     unique: true
-  }
+  },
+  tags: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Tag"
+  }]
 }, { timestamps: true });
 
 // Middleware qui va être exécuté lors de la sauvegarde d'un document

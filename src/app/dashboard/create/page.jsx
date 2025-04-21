@@ -5,7 +5,7 @@ import { useState, useRef } from "react";
 import { addPost } from "@/lib/serverActions/blog/postServerActions";
 
 export default function page() {
-  const [tags, setTags] = useState(["css", "javascript"]);
+  const [tags, setTags] = useState([]);
   const tagInputRef = useRef(null);
 
   function handleAddTag() {
@@ -32,6 +32,7 @@ export default function page() {
     e.preventDefault();
 
     const formData = new FormData(e.target);
+    formData.set("tags", JSON.stringify(tags));
 
     const result = await addPost(formData);
     console.log(result);
