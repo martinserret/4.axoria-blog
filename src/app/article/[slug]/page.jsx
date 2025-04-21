@@ -19,7 +19,14 @@ export default async function page({ params }) {
           </Link>
         ))}
       </p>
-      <p>{post.markdownArticle}</p>
+      <div
+        className="article-styles"
+        dangerouslySetInnerHTML={{ __html: post.markdownHTMLResult }}
+      >
+        
+      </div>
     </main>
   );
 }
+
+// dangerouslySetInnerHTML: attribut spécial qui permet d'intégrer du HTML (comme innerHTML) en jsx

@@ -1,6 +1,9 @@
 "use server";
 
 import slugify from "slugify";
+import { marked } from "marked"; // transforme le markdown en html
+import { JSDOM } from "jsdom"; // purifie le html crée à partir du markdown des scripts qui pourraient engendrer des attaques
+import createDOMPurify from "dompurify"; // purifie le html crée à partir du markdown des scripts qui pourraient engendrer des attaques
 
 import { connectToDB } from "@/lib/utils/db/connectToDB";
 import { Post } from "@/lib/models/post";
@@ -30,11 +33,15 @@ export async function addPost(formData) {
       // Ici il est important de retourner l'id du tag créé 
       return tag._id;
     }));
-    
-    // Création d'un document via un modèle
+
+    //Gestion du markdown
+    let markdownHTMLResult = marked(markdownArticle);
+
+    // Création d'un post via un modèle
     const newPost = new Post({
       title,
       markdownArticle,
+      markdownHTMLResult,
       tags: tagIds
     });
 
