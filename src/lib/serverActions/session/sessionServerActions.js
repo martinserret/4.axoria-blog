@@ -1,6 +1,8 @@
+"use server";
+
 import { User } from "@/lib/models/user";
 import { connectToDB } from "@/lib/utils/db/connectToDB";
-import bcrypt from "bcryptjs/dist/bcrypt";
+import bcrypt from "bcryptjs";
 import slugify from "slugify";
 
 export async function register(formData) {
@@ -16,7 +18,7 @@ export async function register(formData) {
     throw new Error("E-mail format isn't correct");
   }
 
-  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&.;,:/])[A-Za-z\d@$!%*?&]{6,}$/;
   if(!passwordRegex.test(password)) {
     throw new Error("Password doesn't respect a rule");
   }
