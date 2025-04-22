@@ -57,3 +57,7 @@
 .f-label {
   @apply block mb-2 text-gray-700 font-semibold;
 }
+
+.f-auth-input {
+  @apply shadow appearance-none border border-gray-300 rounded w-full p-3 text-gray-700 leading-tight mb-5 focus:outline-gray-400;
+}
