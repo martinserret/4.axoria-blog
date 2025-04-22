@@ -2,11 +2,16 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { addPost } from "@/lib/serverActions/blog/postServerActions";
 
 export default function page() {
   const [tags, setTags] = useState([]);
   const tagInputRef = useRef(null);
+  const submitButtonRef = useRef(null);
+  const serverValidationText = useRef(null);
+  const router = useRouter();
+
 
   function handleAddTag() {
     const newTag = tagInputRef.current.value.trim().toLowerCase();
@@ -34,8 +39,34 @@ export default function page() {
     const formData = new FormData(e.target);
     formData.set("tags", JSON.stringify(tags));
 
-    const result = await addPost(formData);
-    console.log(result);
+    serverValidationText.current.textContent = ""; // Réinitialise le texte de serveur validation
+    submitButtonRef.current.textContent = "Saving Post..."; // Indique dans le bouton que la sauvegarde est en cours
+    submitButtonRef.current.disabled = true; // Evite le spam click
+
+    try {
+      const result = await addPost(formData);
+
+      if(result.success) {
+        submitButtonRef.current.textContent = "Post Saved ✅";
+
+        let countdown = 3;
+        serverValidationText.current.textContent = `Redirecting in ${countdown}...`;
+        const interval = setInterval(() => {
+          countdown -= 1;
+          serverValidationText.current.textContent = `Redirecting in ${countdown}...`;
+
+          if(countdown === 0) {
+            clearInterval(interval);
+            router.push(`/article/${result.slug}`);
+          }
+        }, 1000);
+      }
+    } catch(error) {
+      serverValidationText.current.textContent = `${error.message}`; // Affichage de l'erreur
+      submitButtonRef.current.textContent = "Submit"; // Réinitialise le texte du bouton
+      submitButtonRef.current.disabled = false; // Evite le spam click
+    }
+    
   }
 
   return (
@@ -111,11 +142,16 @@ export default function page() {
           placeholder="Write the content of your article"
         ></textarea>
 
+        {/* Submit button */}
         <button
+          ref={submitButtonRef}
           className="min-w-44 bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded mb-4 cursor-pointer"
         >
           Submit
         </button>
+        <p
+          ref={serverValidationText}
+        ></p>
       </form>
     </main>
   );
