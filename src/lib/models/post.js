@@ -20,7 +20,7 @@ const postSchema = new mongoose.Schema({
     unique: true
   },
   tags: [{
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId, // lien entre les tags et les posts
     ref: "Tag"
   }]
 }, { timestamps: true });
