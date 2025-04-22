@@ -7,6 +7,8 @@ export default function Navbar() {
         <Link href="/" className="mr-2 text-zinc-900">AXORIA</Link>
         <Link href="/categories" className="mx-2 text-zinc-900 mr-auto">Categories</Link>
         <Link href="/dashboard/create" className="mx-2 text-zinc-900">Add an article</Link>
+        <Link href="/signin" className="mx-2 text-zinc-900">Sign In</Link>
+        <Link href="/signup" className="mx-2 text-zinc-900">Sign Up</Link>
       </div>
     </nav>
   );
