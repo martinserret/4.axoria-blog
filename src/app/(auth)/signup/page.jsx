@@ -104,7 +104,7 @@ export default function page() {
 
       <button
         ref={submitButtonRef}
-        className="w-full bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-3 px-4 my-10 rounded border-none"
+        className="w-full bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-3 px-4 mt-6 mb-10 rounded border-none"
       >
         Submit
       </button>
