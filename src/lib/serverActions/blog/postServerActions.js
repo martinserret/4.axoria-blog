@@ -1,9 +1,16 @@
 "use server";
 
 import slugify from "slugify";
+
 import { marked } from "marked"; // transforme le markdown en html
 import { JSDOM } from "jsdom"; // purifie le html crée à partir du markdown des scripts qui pourraient engendrer des attaques
 import createDOMPurify from "dompurify"; // purifie le html crée à partir du markdown des scripts qui pourraient engendrer des attaques
+
+import Prism from "prismjs"; // Librairie de coloration syntaxique (entoure le contenu d'éléments <span>)
+import { markedHighlight } from "marked-highlight"; // Plugin permettant à la librairie marked d'utiliser Prism
+import "prismjs/components/prism-markup"; // Permet d'entourer les éléments html de <span> spécifiques au html
+import "prismjs/components/prism-css"; // Permet d'entourer les éléments css de <span> spécifiques au css
+import "prismjs/components/prism-javascript"; // Permet d'entourer les éléments javascript de <span> spécifiques au javascript
 
 import { connectToDB } from "@/lib/utils/db/connectToDB";
 import { Post } from "@/lib/models/post";
@@ -40,6 +47,17 @@ export async function addPost(formData) {
     }));
 
     //Gestion du markdown
+
+    // Option marked pour highlight le code
+    marked.use(
+      markedHighlight({
+        highlight: (code, language) => {
+          const validLanguage = Prism.languages[language] ? language : "plaintext"; // vérifie si le langage existe sinon retourne "plaintext"
+          return Prism.highlight(code, Prism.languages[validLanguage], validLanguage);
+        }
+      })
+    );
+
     let markdownHTMLResult = marked(markdownArticle);
     markdownHTMLResult = DOMPurify.sanitize(markdownHTMLResult); // Purification du HTML des scripts malicieux
 

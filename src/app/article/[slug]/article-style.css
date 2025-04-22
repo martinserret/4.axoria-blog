@@ -15,3 +15,15 @@
 .article-styles li {
   margin-bottom: 4px;
 }
+
+.article-styles pre {
+  background: #060606;
+  display: block;
+  margin: 20px 0 !important;
+  padding: 24px 24px 32px !important;
+  border-radius: 5px;
+}
+
+.article-styles pre code {
+  font-size: 18px;
+}

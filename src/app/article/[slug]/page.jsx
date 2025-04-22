@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getPost } from "@/lib/serverMethods/blog/postMethods";
 import "./article-style.css";
+import "prism-themes/themes/prism-darcula.css"; // Theme permettant la coloration syntaxique du code
 
 export default async function page({ params }) {
   const { slug } = await params;
