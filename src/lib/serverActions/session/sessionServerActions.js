@@ -119,5 +119,26 @@ export async function login(formData) {
   }
 }
 
+export async function logout() {
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("sessionId")?.value;
+
+  try {
+    await Session.findByIdAndDelete(sessionId);
+
+    cookieStore.set("sessionId", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 0, // On met la durée de vie à 0 pour supprimer le cookie
+      sameSite: "strict" 
+    });
+
+    return  { success: true };
+  } catch (error) {
+    console.error("Error while logging out", error);
+  }
+}
+
 
 // server actions : ils sont fait pour être utilisés par les composants clients côté client

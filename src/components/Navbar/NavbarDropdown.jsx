@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
+import { logout } from "@/lib/serverActions/session/sessionServerActions";
+
 export default function NavbarDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef();
@@ -13,8 +15,8 @@ export default function NavbarDropdown() {
     setIsOpen(!isOpen);
   }
 
-  function handleLogout() {
-
+  async function handleLogout() {
+    await logout();
   }
 
   function closeDropdown() {
