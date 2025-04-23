@@ -13,3 +13,5 @@ export default class AppError extends Error {
 
 // Créer un sous-classe héritée d'Error permet de distinguer si l'erreur vient de la classe Error ou de la classe héritée (AppError ici). 
 // Cette sous classe va fonctionner de la même manière que Error.
+
+// L'UX côté front permettant de gérer les erreurs n'est pas suffisante. En effet, l'utilisateur peut faire des actions non autorisées (lancer des fetch, envoyer des posts vers le serveur, etc.) et il faut donc gérer ces erreurs côté serveur.

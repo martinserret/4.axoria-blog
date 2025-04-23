@@ -16,6 +16,9 @@ import { connectToDB } from "@/lib/utils/db/connectToDB";
 import { Post } from "@/lib/models/post";
 import { Tag } from "@/lib/models/tag";
 
+import { sessionInfo } from "@/lib/serverMethods/session/sessionMethods";
+import AppError from "@/lib/utils/errorHandling/customError";
+
 // Création d'un DOM et dans objet window dans le backend. Cette étape est essentielle car les méthodes utilisées pour
 // nettoyer le HTML utilise des méthodes et des propriétés disponibles dans l'objet global window
 const window = new JSDOM("").window;
@@ -25,10 +28,33 @@ export async function addPost(formData) {
   const { title, markdownArticle, tags } = Object.fromEntries(formData);
 
   try {
+
+    if(typeof title !== "string" || title.trim().length < 3) {
+      throw new AppError("Invalid data");
+    }
+
+    if(typeof markdownArticle !== "string" || markdownArticle.trim().length === 0) {
+      throw new AppError("Invalid data");
+    }
+
     await connectToDB();
 
+    // L'utilisateur doit être connecté pour créer un article
+    const session = await sessionInfo();
+    if(!session) {
+      throw new AppError("You must be logged in to create a post");
+    }
+
     // Gestion des tags
+    if(typeof tags !== "string") {
+      throw new AppError("Invalid data");
+    }
+    
     const tagNamesArray = JSON.parse(tags);
+    
+    if(!Array.isArray(tagNamesArray)) {
+      throw new AppError("Tags must be a valid array");
+    }
 
     // Promise.all permet de lancer toutes les promises parallèlement et ainsi gagner en performance
     // plutôt que d'attendre qu'une promise soit terminée pour lancer la suivante
@@ -71,13 +97,15 @@ export async function addPost(formData) {
 
     // Sauvegarde du document
     const savedPost = await newPost.save();
-    console.log("Post saved successfully");
-
     return { success: true, slug: savedPost.slug };
   } catch(error) {
-    console.log("Error while creating the post: ", error);
-    throw new Error(error.message || "An error occurred while creating the post");
-  }
+    console.error("Error while creating the post: ", error); // Uniquement côté serveur
+
+    if(error instanceof AppError) {
+      throw error;
+    }
+    
+    throw new Error("An error occurred while creating the post"); // Message générique suite à une erreur autre que AppError (venant de MongoDB ou slugify par exemple)
 }
 
 // await Promise.all(): permet de lancer toutes les promises parallèlement et ainsi gagner en performance plutôt que d'attendre qu'une promise soit terminée pour lancer la suivante
