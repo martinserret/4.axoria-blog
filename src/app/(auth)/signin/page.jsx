@@ -2,13 +2,31 @@
 "use client";
 
 import { useRef } from "react";
+import { useRouter } from "next/navigation";
+
+import { login } from "@/lib/serverActions/session/sessionServerActions";
 
 export default function page() {
   const serverInfoRef = useRef(null);
   const submitButtonRef = useRef(null);
+  const router = useRouter();
 
   async function handleSubmit(e) {
     e.preventDefault();
+    serverInfoRef.current.textContent = "";
+    submitButtonRef.current.disabled = true; // éviter le spam click
+
+    try {
+      const result = await login(new FormData(e.target));
+
+      if(result.success) {
+        router.push("/");
+      }
+    } catch(error) {
+      console.error("Error during login:", error);
+      submitButtonRef.current.disabled = false;
+      serverInfoRef.current.textContent = error.message;
+    }
   }
   
   return (
@@ -24,6 +42,7 @@ export default function page() {
         className="f-auth-input"
         type="text"
         id="userName"
+        name="userName"
         placeholder="Pseudo"
         required
       />
@@ -36,6 +55,7 @@ export default function page() {
         className="f-auth-input"
         type="password"
         id="password"
+        name="password"
         placeholder="Password"
         required
       />
