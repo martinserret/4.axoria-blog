@@ -17,6 +17,26 @@ export default function NavbarDropdown() {
 
   }
 
+  function closeDropdown() {
+    setIsOpen(false);
+  }
+
+  // Fermer le dropdown si on clique en dehors
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if(!dropdownRef.current.contains(event.target)){
+        closeDropdown();
+      }
+    }
+
+    document.addEventListener("click", handleClickOutside);
+
+    // clean up fonction qui va se déclencher quand le composant se démonte et qui supprime l'event listener
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div ref={dropdownRef} className="relative">
       <button
@@ -34,7 +54,7 @@ export default function NavbarDropdown() {
       { isOpen && (
         <ul className="absolute right-0 top-10 w-[250px] border-b border-x border-zinc-300">
           <li className="bg-slate-50 border-b border-slate-300 hover:bg-slate-200">
-            <Link href="/dashboard" className="block p-4">Dashboard</Link>
+            <Link href="/dashboard" className="block p-4" onClick={closeDropdown}>Dashboard</Link>
           </li>
           <li className="bg-slate-50 hover:bg-slate-200">
             <button 
