@@ -12,7 +12,8 @@ const sessionSchema = new mongoose.Schema({
   },
   expiresAt: {
     type: Date,
-    required: true
+    required: true,
+    index: { expireAfterSeconds: 0 } // index pour la suppression automatique des sessions expirées
   }
 });
 
