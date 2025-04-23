@@ -13,6 +13,7 @@ export default function page() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    serverInfoRef.current.classList.add("hidden");
     serverInfoRef.current.textContent = "";
     submitButtonRef.current.disabled = true; // éviter le spam click
 
@@ -25,6 +26,7 @@ export default function page() {
     } catch(error) {
       console.error("Error during login:", error);
       submitButtonRef.current.disabled = false;
+      serverInfoRef.current.classList.remove("hidden");
       serverInfoRef.current.textContent = error.message;
     }
   }
@@ -62,12 +64,12 @@ export default function page() {
 
       <button
         ref={submitButtonRef}
-        className="w-full bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-3 px-4 mt-6 mb-10 rounded border-none"
+        className="w-full bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-3 px-4 mt-6 mb-10 rounded border-none cursor-pointer"
       >
         Submit
       </button>
 
-      <p ref={serverInfoRef} className="text-center mb-10"></p>
+      <p ref={serverInfoRef} className="hidden text-center mb-10"></p>
 
       <a 
         href="/signup"

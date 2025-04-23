@@ -39,7 +39,7 @@ export default function page() {
         }, 1000);
       }
     } catch(error) {
-      serverInfoRef.current.textContent = `${error.message}`; // Affichage de l'erreur
+      serverInfoRef.current.textContent = error.message; // Affichage de l'erreur
       submitButtonRef.current.textContent = "Submit"; // Réinitialise le texte du bouton
       submitButtonRef.current.disabled = false; // Evite le spam click
     }
@@ -104,7 +104,7 @@ export default function page() {
 
       <button
         ref={submitButtonRef}
-        className="w-full bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-3 px-4 mt-6 mb-10 rounded border-none"
+        className="w-full bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-3 px-4 mt-6 mb-10 rounded border-none cursor-pointer"
       >
         Submit
       </button>
