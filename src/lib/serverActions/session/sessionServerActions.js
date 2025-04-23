@@ -118,3 +118,6 @@ export async function login(formData) {
     throw new Error(error.message || "An error occurred while logging in");
   }
 }
+
+
+// server actions : ils sont fait pour être utilisés par les composants clients côté client

@@ -2,24 +2,7 @@ import Link from "next/link";
 import { connectToDB } from "@/lib/utils/db/connectToDB";
 import { getPosts } from "@/lib/serverMethods/blog/postMethods";
 
-
-// const posts = [
-//   {
-//     author: "John Doe",
-//     title: "Why it's hard to be no one"
-//   },
-//   {
-//     author: "Dwight Schrute",
-//     title: "Top 5 best beets"
-//   },
-//   {
-//     author: "Cleon the first",
-//     title: "10 advices to become a great emperor"
-//   },
-// ];
-
 export default async function Home() {
-  await connectToDB();
   const posts = await getPosts();
   
   return (

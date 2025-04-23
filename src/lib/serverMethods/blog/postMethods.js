@@ -35,3 +35,5 @@ export async function getPost(slug) {
 // Post.findOne({ slug }).populate : populate permet d'enrichir notre résultat. Dans notre cas, on utilise :
 //  - path: "tags" : référence à notre collection tags dans mongodb
 //  - select: "name slug" : champs de notre collection que l'on souhaite ajouter dans l'objet de retour (ici le name et le slug)
+
+// server methods : ils sont fait pour être utilisés par les composants backend côté backend

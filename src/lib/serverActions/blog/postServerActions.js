@@ -86,3 +86,6 @@ export async function addPost(formData) {
 // Pour tester une attaque xss, commentez la ligne "markdownHTMLResult = DOMPurify.sanitize(markdownHTMLResult);", 
 // créez un nouvel article avec comme contenu : <img src="x" onerror="alert('XSS')" style="display: none;" />
 // Lorsque vous ouvrez cet article, du javascript est lancé en arrière plan (ici affichage d'une alerte)
+
+
+// server actions : ils sont fait pour être utilisés par les composants clients côté client
