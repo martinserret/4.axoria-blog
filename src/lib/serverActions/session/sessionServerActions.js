@@ -140,5 +140,13 @@ export async function logout() {
   }
 }
 
+export async function isPrivatePage(pathname) {
+  const privateSegments = ["/dashboard", "/settings/profile"]; // Les segments de chemin qui sont privés (ici tout ce qui commence par /dashboard et /settings/profile)
+
+  // On vérifie si le pathname correspond à un des segments privés ou commence par un de ces segments
+  return privateSegments.some(segment => pathname === segment || pathname.startsWith(`${segment}/`));
+}
 
 // server actions : ils sont fait pour être utilisés par les composants clients côté client
+
+// privateSegments.some() : retourne true ou false en fonction de la condition définie dans le retour de la callback

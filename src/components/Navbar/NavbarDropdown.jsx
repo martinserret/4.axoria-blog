@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
-import { logout } from "@/lib/serverActions/session/sessionServerActions";
+import { logout, isPrivatePage } from "@/lib/serverActions/session/sessionServerActions";
 
 export default function NavbarDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef();
+  const router = useRouter();
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -17,6 +18,11 @@ export default function NavbarDropdown() {
 
   async function handleLogout() {
     await logout();
+
+    // Redirection si l'utilisateur se trouve sur une page privée
+    if(isPrivatePage(window.location.pathname)){
+      router.push("/signin");
+    }
   }
 
   function closeDropdown() {
