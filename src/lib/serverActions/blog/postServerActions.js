@@ -117,4 +117,6 @@ export async function addPost(formData) {
 // Lorsque vous ouvrez cet article, du javascript est lancé en arrière plan (ici affichage d'une alerte)
 
 
-// server actions : ils sont fait pour être utilisés par les composants clients côté client
+// server actions : ils sont fait pour être utilisés par les composants clients côté client. Vont créer des routes d'API. Méthodes utilisables par l'utilisateur directement sur une page
+//                  avec en général un formulaire, des boutons etc. Souvent il faut un retour direct du texte ou des informations pour dire si l'action a été un succès ou pas. 
+//                  Les erreurs doivent être gérées au cas par cas (try/catch, throw new Error).

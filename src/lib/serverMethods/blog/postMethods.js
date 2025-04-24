@@ -1,34 +1,30 @@
 import { connectToDB } from "@/lib/utils/db/connectToDB";
 import { Post } from "@/lib/models/post";
 import { Tag } from "@/lib/models/tag";
+import { notFound } from "next/navigation";
+
 
 export async function getPosts() {
-  try {
-    await connectToDB();
+  await connectToDB();
 
-    // Récupère tous les posts existants
-    const posts = await Post.find({});
-    return posts;
-  } catch(error) {
-    console.error("Error while fetch posts", error);
-    throw new Error("Failed to fetch posts");
-  }
+  // Récupère tous les posts existants
+  const posts = await Post.find({});
+  return posts;
 }
 
 export async function getPost(slug) {
-  try {
-    await connectToDB();
+  await connectToDB();
 
-    // Récupère un post via son slug
-    const post = await Post.findOne({ slug }).populate({
-      path: "tags",
-      select: "name slug"
-    });
-    return post;
-  } catch(error) {
-    console.error("Error while fetch a post", error);
-    throw new Error("Failed to fetch post");
-  }
+  // Récupère un post via son slug
+  const post = await Post.findOne({ slug }).populate({
+    path: "tags",
+    select: "name slug"
+  });
+
+  // Utilisation de la fonction notFound de next/navigation qui retourne une page 404 (not-found.jsx)
+  if(!post) return notFound();
+
+  return post;
 }
 
 
@@ -36,4 +32,9 @@ export async function getPost(slug) {
 //  - path: "tags" : référence à notre collection tags dans mongodb
 //  - select: "name slug" : champs de notre collection que l'on souhaite ajouter dans l'objet de retour (ici le name et le slug)
 
-// server methods : ils sont fait pour être utilisés par les composants backend côté backend
+
+// server methods : ils sont fait pour être utilisés par les composants backend côté backend. Ils sont utiles le plus souvent pour la création de pages et ne sont utilisés que côté serveur.
+//                  A la différence des serverActions, on ne retourne pas un texte ou un élément pour indiqué que ça n'a pas fonctionné mais directement une page
+
+
+// Ici les try/catch sont implicites sur les fonctions serveurs et sont gérés par nextjs

@@ -32,4 +32,8 @@ export async function sessionInfo() {
 
 
 
-// server methods : ils sont fait pour être utilisés par les composants backend côté backend
+// server methods : ils sont fait pour être utilisés par les composants backend côté backend. Ils sont utiles le plus souvent pour la création de pages et ne sont utilisés que côté serveur.
+//                  A la différence des serverActions, on ne retourne pas un texte ou un élément pour indiqué que ça n'a pas fonctionné mais directement une page
+
+
+// Ici les try/catch sont implicites sur les fonctions serveurs et sont gérés par nextjs

@@ -167,6 +167,8 @@ export async function isPrivatePage(pathname) {
   return privateSegments.some(segment => pathname === segment || pathname.startsWith(`${segment}/`));
 }
 
-// server actions : ils sont fait pour être utilisés par les composants clients côté client
+// server actions : ils sont fait pour être utilisés par les composants clients côté client. Vont créer des routes d'API. Méthodes utilisables par l'utilisateur directement sur une page
+//                  avec en général un formulaire, des boutons etc. Souvent il faut un retour direct du texte ou des informations pour dire si l'action a été un succès ou pas. 
+//                  Les erreurs doivent être gérées au cas par cas (try/catch, throw new Error).
 
 // privateSegments.some() : retourne true ou false en fonction de la condition définie dans le retour de la callback
