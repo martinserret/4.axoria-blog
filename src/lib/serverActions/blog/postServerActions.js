@@ -41,7 +41,7 @@ export async function addPost(formData) {
 
     // L'utilisateur doit être connecté pour créer un article
     const session = await sessionInfo();
-    if(!session) {
+    if(!session.success) {
       throw new AppError("You must be logged in to create a post");
     }
 
@@ -71,6 +71,7 @@ export async function addPost(formData) {
       // Ici il est important de retourner l'id du tag créé 
       return tag._id;
     }));
+
 
     //Gestion du markdown
 
