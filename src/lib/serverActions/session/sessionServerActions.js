@@ -80,16 +80,20 @@ export async function login(formData) {
   
   try {
     await connectToDB();
-    const user = await User.findOne({ userName: userName });
+
+    // Recherche de l'utilisateur dans la bdd à partir de son username ou de son email
+    const user = await User.findOne({
+      $or: [{ userName: userName }, { email: userName }]
+    });
 
     if(!user) {
-      throw new Error("Invalid credentials"); // Ne pas mettre "invalid username" pour éviter de donner trop d'informations sur la base de données
+      throw new AppError("Invalid credentials"); // Ne pas mettre "invalid username" pour éviter de donner trop d'informations sur la base de données
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if(!isPasswordValid) {
-      throw new Error("Invalid credentials"); // Ne pas mettre "invalid password" pour éviter de donner trop d'informations sur la base de données
+      throw new AppError("Invalid credentials"); // Ne pas mettre "invalid password" pour éviter de donner trop d'informations sur la base de données
     }
 
     let session;
@@ -125,8 +129,13 @@ export async function login(formData) {
 
     return { success: true };
   } catch(error) {
-    console.error("Error while log in", error);
-    throw new Error(error.message || "An error occurred while logging in");
+    console.error("Error while log in: ", error); // Uniquement côté serveur
+    
+    if(error instanceof AppError) {
+      throw error;
+    }
+        
+    throw new Error("An error occurred while log in"); // Message générique suite à une erreur autre que AppError (venant de MongoDB ou slugify par exemple)
   }
 }
 

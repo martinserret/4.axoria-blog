@@ -24,10 +24,9 @@ export default function page() {
         router.push("/");
       }
     } catch(error) {
-      console.error("Error during login:", error);
-      submitButtonRef.current.disabled = false;
       serverInfoRef.current.classList.remove("hidden");
       serverInfoRef.current.textContent = error.message;
+      submitButtonRef.current.disabled = false;
     }
   }
   
@@ -39,7 +38,7 @@ export default function page() {
       <label
         htmlFor="userName"
         className="f-label"
-      >Your pseudo</label>
+      >Your email or your pseudo</label>
       <input
         className="f-auth-input"
         type="text"
