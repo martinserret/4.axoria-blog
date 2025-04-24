@@ -106,6 +106,7 @@ export async function addPost(formData) {
     }
     
     throw new Error("An error occurred while creating the post"); // Message générique suite à une erreur autre que AppError (venant de MongoDB ou slugify par exemple)
+  }
 }
 
 // await Promise.all(): permet de lancer toutes les promises parallèlement et ainsi gagner en performance plutôt que d'attendre qu'une promise soit terminée pour lancer la suivante

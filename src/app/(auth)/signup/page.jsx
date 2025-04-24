@@ -39,6 +39,7 @@ export default function page() {
         }, 1000);
       }
     } catch(error) {
+      serverInfoRef.current.classList.remove("hidden");
       serverInfoRef.current.textContent = error.message; // Affichage de l'erreur
       submitButtonRef.current.textContent = "Submit"; // Réinitialise le texte du bouton
       submitButtonRef.current.disabled = false; // Evite le spam click

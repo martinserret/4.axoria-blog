@@ -2,42 +2,48 @@
 
 import { cookies } from "next/headers";
 
+import bcrypt from "bcryptjs";
+import slugify from "slugify";
+
 import { connectToDB } from "@/lib/utils/db/connectToDB";
 import { User } from "@/lib/models/user";
 import { Session } from "@/lib/models/session";
 
-import bcrypt from "bcryptjs";
-import slugify from "slugify";
-
+import AppError from "@/lib/utils/errorHandling/customError";
 
 export async function register(formData) {
   const { userName, email, password, passwordRepeat } = Object.fromEntries(formData);
 
-  // Vérification côté serveur si jamais l'utilisateur a bypass la vérification côté client (via la console par exemple)
-  if(userName.length < 3) {
-    throw new Error("Username is too short");
-  }
-
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  if(!emailRegex.test(email)){
-    throw new Error("E-mail format isn't correct");
-  }
-
-  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&.;,:/])[A-Za-z\d@$!%*?&]{6,}$/;
-  if(!passwordRegex.test(password)) {
-    throw new Error("Password doesn't respect a rule");
-  }
-
-  if(password !== passwordRepeat) {
-    throw new Error("Passwords don't match");
-  }
-
+  
   try {
-    connectToDB();
-    const user = await User.findOne({ userName });
+    // Vérification côté serveur si jamais l'utilisateur a bypass la vérification côté client (via la console par exemple)
+    if(typeof userName !== "string" || userName.trim().length < 3) {
+      throw new AppError("Username must be at least 3 characters long");
+    }
+  
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if(typeof email !== "string" || !emailRegex.test(email.trim())){
+      throw new AppError("E-mail format isn't correct");
+    }
+  
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&.;,:/])[A-Za-z\d@$!%*?&]{6,}$/;
+    if(typeof password !== "string" || !passwordRegex.test(password)) {
+      throw new AppError("Password doesn't respect the rules (6 characters, 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character)");
+    }
+  
+    if(password !== passwordRepeat) {
+      throw new AppError("Passwords don't match");
+    }
+
+    await connectToDB();
+
+    // Recherche de l'utilisateur dans la bdd à partir de son username ou de son email
+    const user = await User.findOne({
+      $or: [{ userName }, { email }]
+    });
 
     if(user) {
-      throw new Error("Username already exists");
+      throw new AppError(user.userName === userName ? "Username already exists" : "Email already exists");
     }
 
     const normalizedUserName = slugify(userName, { lower: true, strict: true });
@@ -59,8 +65,13 @@ export async function register(formData) {
     return { success: true };
 
   } catch(error) {
-    console.log("Error while signing up the user: ", error);
-    throw new Error(error.message || "An error occurred while signing up the user");
+    console.error("Error while registering: ", error); // Uniquement côté serveur
+    
+    if(error instanceof AppError) {
+      throw error;
+    }
+        
+    throw new Error("An error occurred while registering"); // Message générique suite à une erreur autre que AppError (venant de MongoDB ou slugify par exemple)
   }
 }
 
