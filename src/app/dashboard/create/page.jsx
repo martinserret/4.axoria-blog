@@ -12,6 +12,8 @@ export default function page() {
   const serverValidationText = useRef(null);
   const router = useRouter();
 
+  const imgUploadValidationText = useRef(null);
+
 
   function handleAddTag() {
     const newTag = tagInputRef.current.value.trim().toLowerCase();
@@ -66,7 +68,36 @@ export default function page() {
       submitButtonRef.current.textContent = "Submit"; // Réinitialise le texte du bouton
       submitButtonRef.current.disabled = false; // Evite le spam click
     }
-    
+  }
+
+  function handleFileChange(e) {
+    const file = e.target.files[0];
+    const validImageTypes = ["image/jpeg", "image/png", "image/webp"];
+
+    if(!validImageTypes.includes(file.type)) {
+      imgUploadValidationText.current.textContent = "Please upload a valid image (jpeg, png, webp)"; // Si l'image n'est pas valide, on affiche un message d'erreur
+      e.target.value = "";
+    } else {
+      imgUploadValidationText.current.textContent = ""; // Réinitialise le texte de validation
+    }
+
+    // On charge l'image pour vérifier ses dimensions
+    const img = new Image();
+    img.addEventListener("load", checkImgSizeOnLoad);
+
+    function checkImgSizeOnLoad() {
+      if(img.width > 1280 || img.height > 720) {
+        imgUploadValidationText.current.textContent = "Image exceeds 1280x720 dimensions"; // Si l'image n'a pas une dimension valide, on affiche un message d'erreur
+        e.target.value = "";
+        URL.revokeObjectURL(img.src); // Libère la mémoire
+        return;
+      } else {
+        imgUploadValidationText.current.textContent = ""; // Réinitialise le texte de validation
+        URL.revokeObjectURL(img.src); // Libère la mémoire
+      }
+    }
+
+    img.src = URL.createObjectURL(file); // Charge un objet une image et ses caractéristiques
   }
 
   return (
@@ -87,6 +118,19 @@ export default function page() {
           placeholder="Title"
           required
         />
+
+        {/* Image */}
+        <label htmlFor="coverImage" className="f-label">Cover image (1280x720 for best quality, or less)</label>
+        <input 
+          type="file" 
+          name="coverImage"
+          className="file:mr-5 file:p-3 file:rounded file:border-0 file:font-medium file:bg-indigo-500 file:text-white file:cursor-pointer w-full text-gray-700 hover:file:bg-indigo-700 mb-2"
+          id="coverImage"
+          required
+          placeholder="Article's cover image"
+          onChange={handleFileChange}
+        />
+        <p ref={imgUploadValidationText} className="text-red-700 mb-7"></p>
 
         {/* Tags */}
         <div className="mb-10">
