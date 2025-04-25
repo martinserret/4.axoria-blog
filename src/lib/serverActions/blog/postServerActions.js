@@ -128,6 +128,7 @@ export async function addPost(formData) {
     // Création d'un post via un modèle
     const newPost = new Post({
       title,
+      author: session.userId,
       markdownArticle,
       markdownHTMLResult,
       tags: tagIds,

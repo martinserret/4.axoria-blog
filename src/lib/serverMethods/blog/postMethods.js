@@ -15,8 +15,11 @@ export async function getPosts() {
 export async function getPost(slug) {
   await connectToDB();
 
-  // Récupère un post via son slug
+  // Récupère un post via son slug et le populate permet d'enrichir notre résultat
   const post = await Post.findOne({ slug }).populate({
+    path: "author",
+    select: "userName normalizedUserName"
+  }).populate({
     path: "tags",
     select: "name slug"
   });
