@@ -19,13 +19,16 @@ import { Tag } from "@/lib/models/tag";
 import { sessionInfo } from "@/lib/serverMethods/session/sessionMethods";
 import AppError from "@/lib/utils/errorHandling/customError";
 
+import sharp from "sharp"; // Librairie permettant de manipuler les images (redimensionner, compresser, etc.)
+import crypto from "crypto"; // Librairie permettant de générer un nom de fichier unique pour éviter les conflits de nom (vient directement de NodeJS)
+
 // Création d'un DOM et dans objet window dans le backend. Cette étape est essentielle car les méthodes utilisées pour
 // nettoyer le HTML utilise des méthodes et des propriétés disponibles dans l'objet global window
 const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
 
 export async function addPost(formData) {
-  const { title, markdownArticle, tags } = Object.fromEntries(formData);
+  const { title, markdownArticle, tags, coverImage } = Object.fromEntries(formData);
 
   try {
 
@@ -45,6 +48,40 @@ export async function addPost(formData) {
       throw new AppError("You must be logged in to create a post");
     }
 
+
+    //Gestion de l'upload d'image
+    if(!coverImage || !(coverImage instanceof File)) {
+      throw new AppError("Invalid data");
+    }
+    
+    const validImageTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if(!validImageTypes.includes(coverImage.type)) {
+      throw new AppError("Invalid data");
+    }
+
+    const imageBuffer = Buffer.from(await coverImage.arrayBuffer()); // Transformation de l'image en données brutes pour la manipuler
+    const { width, height } = await sharp(imageBuffer).metadata(); // Récupération de la largeur et de la hauteur de l'image
+    if(width > 1280 || height > 720) {
+      throw new AppError("Invalid data");
+    }
+
+    const uniqueFileName = `${crypto.randomUUID()}_${coverImage.name}`; // Création d'un nom de fichier unique pour éviter les conflits de nom
+    const uploadUrl = `${process.env.BUNNY_STORAGE_HOST}/${process.env.BUNNY_STORAGE_ZONE}/${uniqueFileName}`; // URL de mise en ligne de l'image sur BunnyCDN (pour le stockage)
+    const publicImageUrl = `${process.env.BUNNY_STORAGE_PULL_ZONE}/${uniqueFileName.trim()}`; // Récupération de l'image via la pull zone la plus proche de l'utilisateur sur BunnyCDN (pour la diffusion)
+
+    const response = await fetch(uploadUrl, {
+      method: "PUT",
+      headers: {
+        "AccessKey": process.env.BUNNY_STORAGE_API_KEY,
+        "Content-type": "application/octet-stream" // mode de mise en ligne de l'image
+      },
+      body: imageBuffer // Image brut
+    });
+
+    if(!response.ok) {
+      throw new AppError(`Error while uploading the image : ${response.statusText}`);
+    }
+    
     // Gestion des tags
     if(typeof tags !== "string") {
       throw new AppError("Invalid data");
@@ -93,7 +130,8 @@ export async function addPost(formData) {
       title,
       markdownArticle,
       markdownHTMLResult,
-      tags: tagIds
+      tags: tagIds,
+      coverImageUrl: publicImageUrl,
     });
 
     // Sauvegarde du document

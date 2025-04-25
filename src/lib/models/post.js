@@ -19,6 +19,10 @@ const postSchema = new mongoose.Schema({
     type: String,
     unique: true
   },
+  coverImageUrl: {
+    type: String,
+    required: true
+  },
   tags: [{
     type: mongoose.Schema.Types.ObjectId, // lien entre les tags et les posts
     ref: "Tag"

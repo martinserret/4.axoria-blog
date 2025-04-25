@@ -72,10 +72,10 @@ export default function page() {
 
   function handleFileChange(e) {
     const file = e.target.files[0];
-    const validImageTypes = ["image/jpeg", "image/png", "image/webp"];
+    const validImageTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
     if(!validImageTypes.includes(file.type)) {
-      imgUploadValidationText.current.textContent = "Please upload a valid image (jpeg, png, webp)"; // Si l'image n'est pas valide, on affiche un message d'erreur
+      imgUploadValidationText.current.textContent = "Please upload a valid image (jpeg, jpg, png, webp)"; // Si l'image n'est pas valide, on affiche un message d'erreur
       e.target.value = "";
     } else {
       imgUploadValidationText.current.textContent = ""; // Réinitialise le texte de validation
