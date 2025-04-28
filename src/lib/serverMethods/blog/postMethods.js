@@ -33,6 +33,14 @@ export async function getPost(slug) {
   return post;
 }
 
+export async function getUserPostsFromUserId(userId) {
+  await connectToDB();
+
+  const posts = await Post.find({ author: userId }).select("_id title slug");
+
+  return posts;
+}
+
 
 // Post.findOne({ slug }).populate : populate permet d'enrichir notre résultat. Dans notre cas, on utilise :
 //  - path: "tags" : référence à notre collection tags dans mongodb
