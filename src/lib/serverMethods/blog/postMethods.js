@@ -1,6 +1,7 @@
 import { connectToDB } from "@/lib/utils/db/connectToDB";
 import { Post } from "@/lib/models/post";
 import { Tag } from "@/lib/models/tag";
+import { User } from "@/lib/models/user";
 import { notFound } from "next/navigation";
 
 
@@ -56,6 +57,28 @@ export async function getPostsByTag(tagSlug) {
     .populate({
       path: "author",
       select: "userName"
+    })
+    .select("title slug coverImageUrl createdAt")
+    .sort({ createdAt: -1 });
+
+  return posts;
+}
+
+export async function getPostsByAuthor(normalizedUserName) {
+  await connectToDB();
+
+  const author = await User.findOne({ normalizedUserName });
+
+  if(!author) return notFound(); // Utilisation de la fonction notFound de next/navigation qui retourne une page 404 (not-found.jsx)
+
+  // Récupère tous les posts qui ont l'auteur en question
+  // On utilise la méthode populate pour enrichir le résultat avec le nom de l'auteur
+  // On utilise la méthode select pour ne récupérer que les champs nécessaires
+  // On utilise la méthode sort pour trier les posts par date de création (createdAt) décroissante
+  const posts = await Post.find({ author: author._id })
+    .populate({
+      path: "author",
+      select: "userName normalizedUserName"
     })
     .select("title slug coverImageUrl createdAt")
     .sort({ createdAt: -1 });

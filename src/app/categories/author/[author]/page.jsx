@@ -1,15 +1,15 @@
-import { getPostsByTag } from "@/lib/serverMethods/blog/postMethods";
+import { getPostsByAuthor } from "@/lib/serverMethods/blog/postMethods";
 import BlogCard from "@/components/BlogCard";
 
 
 export default async function page({ params }) {
-  const { tag } = await params;
-  const posts = await getPostsByTag(tag);
+  const { author } = await params;
+  const posts = await getPostsByAuthor(author);
 
   return (
     <main className="u-main-container u-padding-content-container">
-      <h1 className="t-main-title">Posts from the #{tag} tag 🏷️</h1>
-      <p className="t-main-subtitle">All the post that use this tag</p>
+      <h1 className="t-main-title">Posts from {author} 🏷️</h1>
+      <p className="t-main-subtitle">Every post from that author</p>
       <p className="mr-4 text-md text-zinc-900">Latest articles</p>
       <ul className="u-articles-grid">
         {posts.length > 0 ? (
@@ -17,7 +17,7 @@ export default async function page({ params }) {
             <BlogCard key={post._id} post={post}></BlogCard>
           ))
         ) : (
-          <li>No article found for that tag 🤖</li>
+          <li>No article found for that author 🤖</li>
         )}
       </ul>
     </main>
