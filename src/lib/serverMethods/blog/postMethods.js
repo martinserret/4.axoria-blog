@@ -86,6 +86,24 @@ export async function getPostsByAuthor(normalizedUserName) {
   return posts;
 }
 
+export async function getPostForEdit(slug) {
+  await connectToDB();
+
+  const post = await Post.findOne({ slug })
+    .populate({
+      path: "author",
+      select: "userName normalizedUserName"
+    })
+    .populate({
+      path: "tags",
+      select: "name slug"
+    });
+
+  if(!post) return notFound();
+
+  return post;
+}
+
 
 // Post.findOne({ slug }).populate : populate permet d'enrichir notre résultat. Dans notre cas, on utilise :
 //  - path: "tags" : référence à notre collection tags dans mongodb
