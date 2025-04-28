@@ -41,6 +41,28 @@ export async function getUserPostsFromUserId(userId) {
   return posts;
 }
 
+export async function getPostsByTag(tagSlug) {
+  await connectToDB();
+
+  const tag = await Tag.findOne({ slug: tagSlug });
+
+  if(!tag) return notFound(); // Utilisation de la fonction notFound de next/navigation qui retourne une page 404 (not-found.jsx)
+
+  // Récupère tous les posts qui ont le tag en question
+  // On utilise la méthode populate pour enrichir le résultat avec le nom de l'auteur
+  // On utilise la méthode select pour ne récupérer que les champs nécessaires
+  // On utilise la méthode sort pour trier les posts par date de création (createdAt) décroissante
+  const posts = await Post.find({ tags: tag._id })
+    .populate({
+      path: "author",
+      select: "userName"
+    })
+    .select("title coverImageUrl slug createdAt")
+    .sort({ createdAt: -1 });
+
+  return posts;
+}
+
 
 // Post.findOne({ slug }).populate : populate permet d'enrichir notre résultat. Dans notre cas, on utilise :
 //  - path: "tags" : référence à notre collection tags dans mongodb

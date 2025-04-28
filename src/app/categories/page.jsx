@@ -15,7 +15,7 @@ export default async function page() {
             <li key={tag._id} className="bg-gray-100 border border-gray-300 rounded shadow-md">
               <Link href={`/categories/tag/${tag.slug}`} className="flex items-baseline p-4 ">
                 <span className=" text-lg font-semibold underline">#{tag.name}</span>
-                <span className="ml-auto">{tag.postCount}</span>
+                <span className="ml-auto">{tag.postCount} articles</span>
               </Link>
             </li>
           ))
