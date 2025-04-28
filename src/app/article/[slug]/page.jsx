@@ -17,8 +17,8 @@ export default async function page({ params }) {
         <Link 
           href={`/categories/author/${post.author.normalizedUserName}`}
           className="mr-4 underline"
-        >{
-            post.author.userName}
+        >
+          {post.author.userName}
         </Link>
         {post.tags.map(tag => (
           <Link

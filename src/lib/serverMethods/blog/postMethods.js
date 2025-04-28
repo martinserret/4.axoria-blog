@@ -8,7 +8,10 @@ export async function getPosts() {
   await connectToDB();
 
   // Récupère tous les posts existants
-  const posts = await Post.find({});
+  const posts = await Post.find({}).populate({
+    path: "author",
+    select: "userName normalizedUserName"
+  });
   return posts;
 }
 
