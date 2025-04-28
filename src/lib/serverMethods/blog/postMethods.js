@@ -57,7 +57,7 @@ export async function getPostsByTag(tagSlug) {
       path: "author",
       select: "userName"
     })
-    .select("title coverImageUrl slug createdAt")
+    .select("title slug coverImageUrl createdAt")
     .sort({ createdAt: -1 });
 
   return posts;
