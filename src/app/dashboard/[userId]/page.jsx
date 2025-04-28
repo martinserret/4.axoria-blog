@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getUserPostsFromUserId } from "@/lib/serverMethods/blog/postMethods";
+import DeletePostButton from "./components/DeletePostButton";
 
 export default async function page({ params }) {
   const { userId } = await params;
@@ -14,13 +15,13 @@ export default async function page({ params }) {
         {posts.length > 0 ? (
           posts.map(post => (
             <li key={post._id} className="flex items-center mb-2 bg-slate-50 py-2 pl-4">
-              <Link href={`/article/${post.slug}`} className="mr-auto underline underline-offset-2">
+              <Link href={`/article/${post.slug}`} className="mr-auto underline text-lg underline-offset-2">
                 {post.title}
               </Link>
-              <button>Delete</button>
-              <Link href={`/dashboard/edit/${post.slug}`} className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded mr-2">
+              <Link href={`/dashboard/edit/${post.slug}`} className="bg-indigo-500 hover:bg-indigo-700 min-w-20 text-center text-white font-bold py-2 px-4 rounded mr-2">
                 Edit
               </Link>
+              <DeletePostButton id={post._id.toString()}/> 
             </li>
           ))
         ): (
@@ -30,3 +31,6 @@ export default async function page({ params }) {
     </main>
   );
 }
+
+
+// Attention : post._id est un objet, il faut donc le convertir en string si on souhaite l'utiliser dans une url par exemple

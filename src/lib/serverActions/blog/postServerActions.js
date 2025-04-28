@@ -1,6 +1,6 @@
 "use server";
 
-import slugify from "slugify";
+import { revalidatePath } from "next/cache";
 
 import { marked } from "marked"; // transforme le markdown en html
 import { JSDOM } from "jsdom"; // purifie le html crée à partir du markdown des scripts qui pourraient engendrer des attaques
@@ -19,6 +19,7 @@ import { Tag } from "@/lib/models/tag";
 import { sessionInfo } from "@/lib/serverMethods/session/sessionMethods";
 import AppError from "@/lib/utils/errorHandling/customError";
 
+import slugify from "slugify";
 import sharp from "sharp"; // Librairie permettant de manipuler les images (redimensionner, compresser, etc.)
 import crypto from "crypto"; // Librairie permettant de générer un nom de fichier unique pour éviter les conflits de nom (vient directement de NodeJS)
 
@@ -146,6 +147,49 @@ export async function addPost(formData) {
     }
     
     throw new Error("An error occurred while creating the post"); // Message générique suite à une erreur autre que AppError (venant de MongoDB ou slugify par exemple)
+  }
+}
+
+export async function deletePost(id) {
+  try {
+    await connectToDB();
+
+    const user = await sessionInfo();
+    if(!user) {
+      throw new AppError("Authentication required");
+    } 
+    
+    const post = await Post.findById(id);
+    if(!post) {
+      throw new AppError("Post not found");
+    }
+
+    await Post.findByIdAndDelete(id);
+
+    if(post.coverImageUrl) {
+      const fileName = post.coverImageUrl.split("/").pop(); // Récupération du nom de fichier pour supprimer l'image
+      const deleteUrl = `${process.env.BUNNY_STORAGE_HOST}/${process.env.BUNNY_STORAGE_ZONE}/${fileName}`; // URL de suppression de l'image sur BunnyCDN
+
+      const response = await fetch(deleteUrl, {
+        method: "DELETE",
+        headers: { "AccessKey": process.env.BUNNY_STORAGE_API_KEY }
+      });
+
+      if(!response.ok) {
+        throw new AppError(`Error while deleting the image : ${response.statusText}`);
+      }
+    }
+
+    revalidatePath(`/article/${post.slug}`); // Revalidation de la page de l'article supprimé pour éviter de la garder en cache et ne plus servir l'article qui n'existe plus + recharge l'html de la page en cours
+
+  } catch(error) {
+    console.error("Error while deleting a post: ", error); // Uniquement côté serveur
+
+    if(error instanceof AppError) {
+      throw error;
+    }
+    
+    throw new Error("An error occurred while deleting a post"); // Message générique suite à une erreur autre que AppError (venant de MongoDB ou slugify par exemple)
   }
 }
 
