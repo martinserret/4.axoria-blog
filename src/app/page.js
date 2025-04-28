@@ -6,7 +6,7 @@ import BlogCard from "@/components/BlogCard";
 
 export default async function Home() {
   const posts = await getPosts();
-  
+
   return (
     <div className="u-main-container u-padding-content-container">
       <h1 className="t-main-title">Stay up to date with AXORIA</h1>
