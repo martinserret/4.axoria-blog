@@ -170,6 +170,30 @@ export async function isPrivatePage(pathname) {
   return privateSegments.some(segment => pathname === segment || pathname.startsWith(`${segment}/`));
 }
 
+export async function SAsessionInfo() {
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("sessionId")?.value;
+
+  if(!sessionId) {
+    return { success: false };
+  }
+  
+  await connectToDB();
+  const session = await Session.findById(sessionId);
+  
+  if(!session || session.expiresAt < new Date()) {
+    return { success: false, userId: null };
+  }
+  
+  const user = await User.findById(session.userId);
+  
+  if(!user) {
+    return { success: false, userId: null };
+  }
+
+  return { success: true, userId: user._id.toString() };
+}
+
 // server actions : ils sont fait pour être utilisés par les composants clients côté client. Vont créer des routes d'API. Méthodes utilisables par l'utilisateur directement sur une page
 //                  avec en général un formulaire, des boutons etc. Souvent il faut un retour direct du texte ou des informations pour dire si l'action a été un succès ou pas. 
 //                  Les erreurs doivent être gérées au cas par cas (try/catch, throw new Error).
