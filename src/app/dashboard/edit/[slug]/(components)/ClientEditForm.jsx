@@ -49,7 +49,8 @@ export default function ClientEditForm({ post }) {
     }
 
     formData.set("tags", JSON.stringify(tags));
-    formData.set("slug", JSON.stringify(post.slug));
+    formData.set("slug", post.slug);
+    formData.set("postToEdit", post);
 
     serverValidationText.current.textContent = ""; // Réinitialise le texte de serveur validation
     submitButtonRef.current.textContent = "Updating Post..."; // Indique dans le bouton que la sauvegarde est en cours
@@ -223,3 +224,7 @@ export default function ClientEditForm({ post }) {
 // <button type="button"></button> : il est important de spécifier type="button" lorsque'on ajoute un bouton dans le formulaire dont l'objectif n'est pas de retourner (submit) le formulaire
 // mais qui réalise une autre action dans le formulaire (comme ici ajouter un tag). type peut aussi prendre la valeur "submit" si on souhaite qu'il submit le formulaire (comportement par défaut de type donc pas la peine
 // de le préciser si l'objectif du bouton est de submit le formulaire)
+
+
+// Il est possible (et conseillé) de faire des vérifications côté client plus poussées en utilisant des useRef pour vérifier les valeurs des inputs au cas par cas avant de les envoyer au serveur. 
+// Par exemple pour vérifier la taille du titre, la taille de l'image, le nombre de tags, etc.

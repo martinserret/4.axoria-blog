@@ -18,6 +18,7 @@ import { Tag } from "@/lib/models/tag";
 
 import { sessionInfo } from "@/lib/serverMethods/session/sessionMethods";
 import AppError from "@/lib/utils/errorHandling/customError";
+import { generateUniqueSlug } from "@/lib/utils/general/utils"; // Fonction permettant de générer un slug unique
 
 import slugify from "slugify";
 import sharp from "sharp"; // Librairie permettant de manipuler les images (redimensionner, compresser, etc.)
@@ -147,6 +148,36 @@ export async function addPost(formData) {
     }
     
     throw new Error("An error occurred while creating the post"); // Message générique suite à une erreur autre que AppError (venant de MongoDB ou slugify par exemple)
+  }
+}
+
+export async function editPost(formData) {
+  const { postToEdit, slug, title, markdownArticle, coverImage, tags } = Object.fromEntries(formdata); // Construction d'un objet js classique depuis un formData puis destructuration de l'objet
+
+  try {
+    await connectToDB();
+    
+    const session = await sessionInfo();
+    if(!session.success) {
+      throw new Error(); // Ici on peut envoyer une erreur générique car on ne veut pas que l'utilisateur sache si c'est le token qui est invalide ou si l'utilisateur n'est pas connecté
+    }
+
+    const updatedData = {};
+
+    if(typeof title !== "string" ) throw new Error();
+    if(title.trim() !== postToEdit.title) {
+      updatedData.title = title;
+      updatedData.slug = await generateUniqueSlug(title); // Génération d'un slug unique
+    }
+
+  } catch(error) {
+    console.error("Error while updating the post: ", error); // Uniquement côté serveur
+
+    if(error instanceof AppError) {
+      throw error;
+    }
+    
+    throw new Error("An error occurred while updating the post"); // Message générique suite à une erreur autre que AppError (venant de MongoDB ou slugify par exemple)
   }
 }
 
