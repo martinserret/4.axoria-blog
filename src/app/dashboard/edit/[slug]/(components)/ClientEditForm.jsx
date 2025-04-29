@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { addPost } from "@/lib/serverActions/blog/postServerActions";
+import { areTagsSimilar } from "@/lib/utils/general/utils";
 
 export default function ClientEditForm({ post }) {
   const [tags, setTags] = useState(post.tags.map(tag => tag.name)); // On initialise useState avec les tags du post
@@ -12,7 +13,6 @@ export default function ClientEditForm({ post }) {
   const router = useRouter();
 
   const imgUploadValidationText = useRef(null);
-
 
   function handleAddTag() {
     const newTag = tagInputRef.current.value.trim().toLowerCase();
@@ -38,7 +38,18 @@ export default function ClientEditForm({ post }) {
     e.preventDefault();
 
     const formData = new FormData(e.target);
+    const readableFormData = Object.fromEntries(formData); // Permet de lire toute les valeurs des inputs
+    const areSameTags = areTagsSimilar(tags, post.tags); // Compara les tags du post avec ceux de la DB
+
+    if(readableFormData.coverImage.size === 0 && readableFormData.title.trim() === post.title && readableFormData.markdownArticle.trim() === post.markdownArticle && areSameTags) {
+      serverValidationText.current.textContent = "You must make a change before submitting";
+      return;
+    } else {
+      serverValidationText.current.textContent = ""; // Réinitialise le texte de serveur validation
+    }
+
     formData.set("tags", JSON.stringify(tags));
+    formData.set("slug", JSON.stringify(post.slug));
 
     serverValidationText.current.textContent = ""; // Réinitialise le texte de serveur validation
     submitButtonRef.current.textContent = "Updating Post..."; // Indique dans le bouton que la sauvegarde est en cours
@@ -120,16 +131,19 @@ export default function ClientEditForm({ post }) {
         />
 
         {/* Image */}
-        <label htmlFor="coverImage" className="f-label">Cover image (1280x720 for best quality, or less)</label>
+        <label htmlFor="coverImage" className="f-label">
+          <span>Cover image (1280x720 for best quality, or less)</span>
+          <span className="block font-normal text-sm">Changing image is <span className="font-bold">optional</span> in edit mode.</span>
+        </label>
         <input 
           type="file" 
           name="coverImage"
           className="file:mr-5 file:p-3 file:rounded file:border-0 file:font-medium file:bg-indigo-500 file:text-white file:cursor-pointer w-full text-gray-700 hover:file:bg-indigo-700 mb-2"
           id="coverImage"
-          required
           placeholder="Article's cover image"
           onChange={handleFileChange}
         />
+        <p className="font-normal text-sm">Actual image : <a href={post.coverImageUrl} target="_blank" className="underline text-indigo-700 hover:text-indigo-500">{post.coverImageUrl}</a></p>
         <p ref={imgUploadValidationText} className="text-red-700 mb-7"></p>
 
         {/* Tags */}
