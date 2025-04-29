@@ -1,7 +1,4 @@
-import Link from "next/link";
-import { connectToDB } from "@/lib/utils/db/connectToDB";
 import { getPosts } from "@/lib/serverMethods/blog/postMethods";
-
 import BlogCard from "@/components/BlogCard";
 
 export default async function Home() {

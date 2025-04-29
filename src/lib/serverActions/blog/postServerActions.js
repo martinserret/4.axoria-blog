@@ -152,7 +152,7 @@ export async function addPost(formData) {
 }
 
 export async function editPost(formData) {
-  const { postToEditStringified, title, markdownArticle, coverImage, tags } = Object.fromEntries(formdata); // Construction d'un objet js classique depuis un formData puis destructuration de l'objet
+  const { postToEditStringified, title, markdownArticle, coverImage, tags } = Object.fromEntries(formData); // Construction d'un objet js classique depuis un formData puis destructuration de l'objet
   const postToEdit = JSON.parse(postToEditStringified);
 
   try {
@@ -209,11 +209,11 @@ export async function editPost(formData) {
       }
 
       // Upload de la nouvelle image
-      const imageToUploadFileName = `${crypto.randomUUID()}_${coverImage.name}}`;  // Création d'un nom de fichier unique pour éviter les conflits de nom
+      const imageToUploadFileName = `${crypto.randomUUID()}_${coverImage.name}`;  // Création d'un nom de fichier unique pour éviter les conflits de nom
       const imageToUploadUrl = `${process.env.BUNNY_STORAGE_HOST}/${process.env.BUNNY_STORAGE_ZONE}/${imageToUploadFileName}`;
-      const imageToUploadPublicUrl = `${process.env.BUNNY_STORAGE_PULL_ZONE}/${imageToUploadUrl.trim()}`;
+      const imageToUploadPublicUrl = `${process.env.BUNNY_STORAGE_PULL_ZONE}/${imageToUploadFileName.trim()}`;
 
-      const imageToUploadResponse = await fetch(imageToUploadPublicUrl, {
+      const imageToUploadResponse = await fetch(imageToUploadUrl, {
         method: "PUT",
         headers: {
           "AccessKey": process.env.BUNNY_STORAGE_API_KEY,

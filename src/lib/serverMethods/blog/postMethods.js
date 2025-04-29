@@ -9,10 +9,12 @@ export async function getPosts() {
   await connectToDB();
 
   // Récupère tous les posts existants
-  const posts = await Post.find({}).populate({
-    path: "author",
-    select: "userName normalizedUserName"
-  });
+  const posts = await Post.find({})
+    .populate({
+      path: "author",
+      select: "userName normalizedUserName"
+    })
+    .sort({ createdAt: -1 });;
   return posts;
 }
 
@@ -37,7 +39,7 @@ export async function getPost(slug) {
 export async function getUserPostsFromUserId(userId) {
   await connectToDB();
 
-  const posts = await Post.find({ author: userId }).select("_id title slug");
+  const posts = await Post.find({ author: userId }).select("_id title slug").sort({ createdAt: -1 });
 
   return posts;
 }

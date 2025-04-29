@@ -49,7 +49,7 @@ export default function ClientEditForm({ post }) {
     }
 
     formData.set("tags", JSON.stringify(tags));
-    formData.set("postToEdit", JSON.stringify(post));
+    formData.set("postToEditStringified", JSON.stringify(post));
 
     serverValidationText.current.textContent = ""; // Réinitialise le texte de serveur validation
     submitButtonRef.current.textContent = "Updating Post..."; // Indique dans le bouton que la sauvegarde est en cours
