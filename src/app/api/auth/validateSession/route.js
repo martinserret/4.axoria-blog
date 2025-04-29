@@ -8,7 +8,8 @@ import { connectToDB } from "@/lib/utils/db/connectToDB";
 
 export async function GET() {
   try {
-    const sessionId = (await cookies()).get("sessionsId")?.value;
+    const sessionId = (await cookies()).get("sessionId")?.value;
+
     if(!sessionId) {
       return NextResponse.json({ authorized: false }, { status: 500 });
     }

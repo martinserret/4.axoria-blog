@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { revalidateTag } from "next/cache";
 
 import bcrypt from "bcryptjs";
 import slugify from "slugify";
@@ -127,6 +128,7 @@ export async function login(formData) {
       sameSite: "lax", // Bloque l'envoie de cookies sur d'autres domaines que le domaine de notre site
     });
 
+    revalidateTag("auth-session"); // On revalide le cache de la session pour que le middleware puisse rediriger l'utilisateur vers la page de connexion
     return { success: true };
   } catch(error) {
     console.error("Error while log in: ", error); // Uniquement côté serveur
@@ -154,6 +156,7 @@ export async function logout() {
       sameSite: "strict" 
     });
 
+    revalidateTag("auth-session"); // On revalide le cache de la session pour que le middleware puisse rediriger l'utilisateur vers la page de connexion
     return  { success: true };
   } catch (error) {
     console.error("Error while logging out", error);
