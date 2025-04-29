@@ -18,7 +18,8 @@ import { Tag } from "@/lib/models/tag";
 
 import { sessionInfo } from "@/lib/serverMethods/session/sessionMethods";
 import AppError from "@/lib/utils/errorHandling/customError";
-import { generateUniqueSlug } from "@/lib/utils/general/utils"; // Fonction permettant de générer un slug unique
+import { areTagsSimilar, generateUniqueSlug } from "@/lib/utils/general/utils"; // Fonction permettant de générer un slug unique
+import { findOrCreateTag } from "@/lib/serverMethods/tag/tagMethods"; // Fonction permettant de trouver ou créer un tag
 
 import slugify from "slugify";
 import sharp from "sharp"; // Librairie permettant de manipuler les images (redimensionner, compresser, etc.)
@@ -113,7 +114,6 @@ export async function addPost(formData) {
 
 
     //Gestion du markdown
-
     // Option marked pour highlight le code
     marked.use(
       markedHighlight({
@@ -152,11 +152,13 @@ export async function addPost(formData) {
 }
 
 export async function editPost(formData) {
-  const { postToEdit, slug, title, markdownArticle, coverImage, tags } = Object.fromEntries(formdata); // Construction d'un objet js classique depuis un formData puis destructuration de l'objet
+  const { postToEditStringified, title, markdownArticle, coverImage, tags } = Object.fromEntries(formdata); // Construction d'un objet js classique depuis un formData puis destructuration de l'objet
+  const postToEdit = JSON.parse(postToEditStringified);
 
   try {
     await connectToDB();
     
+    /// Vérification de la présence d'une session
     const session = await sessionInfo();
     if(!session.success) {
       throw new Error(); // Ici on peut envoyer une erreur générique car on ne veut pas que l'utilisateur sache si c'est le token qui est invalide ou si l'utilisateur n'est pas connecté
@@ -164,11 +166,89 @@ export async function editPost(formData) {
 
     const updatedData = {};
 
-    if(typeof title !== "string" ) throw new Error();
+    // Gestion du titre
+    if(typeof title !== "string" || title.trim().length < 3) throw new Error();
     if(title.trim() !== postToEdit.title) {
       updatedData.title = title;
       updatedData.slug = await generateUniqueSlug(title); // Génération d'un slug unique
     }
+
+    // Gestion du markdown
+    if(typeof markdownArticle !== "string" || markdownArticle.trim().length === 0) throw new Error();
+    if(markdownArticle.trim() !== postToEdit.markdownArticle) {
+      updatedData.markdownHTMLResult = DOMPurify.sanitize(marked(markdownArticle)); // Purification du HTML des scripts malicieux
+      updatedData.markdownArticle = markdownArticle;
+    }
+
+    // Gestion de l'image
+    if(!(coverImage instanceof File)) throw new Error();
+    
+    if(coverImage.size > 0) {
+      const validImageTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+      if(!validImageTypes.includes(coverImage.type)) {
+        throw new Error();
+      }
+
+      const imageBuffer = Buffer.from(await coverImage.arrayBuffer()); // Transformation de l'image en données brutes pour la manipuler
+      const { width, height } = await sharp(imageBuffer).metadata(); // Récupération de la largeur et de la hauteur de l'image
+      if(width > 1280 || height > 720) {
+        throw new Error();
+      }
+
+      // Suppression de l'ancienne image
+      const imageToDeleteFileName = postToEdit.coverImageUrl.split("/").pop(); // Récupération du nom de fichier pour supprimer l'image
+      const imageToDeleteUrl = `${process.env.BUNNY_STORAGE_HOST}/${process.env.BUNNY_STORAGE_ZONE}/${imageToDeleteFileName}`; // URL de suppression de l'image sur BunnyCDN
+
+      const imageToDeleteResponse = await fetch(imageToDeleteUrl, {
+        method: "DELETE",
+        headers: { "AccessKey": process.env.BUNNY_STORAGE_API_KEY }
+      });
+
+      if(!imageToDeleteResponse.ok) {
+        throw new AppError(`Error while deleting the image : ${imageToDeleteResponse.statusText}`);
+      }
+
+      // Upload de la nouvelle image
+      const imageToUploadFileName = `${crypto.randomUUID()}_${coverImage.name}}`;  // Création d'un nom de fichier unique pour éviter les conflits de nom
+      const imageToUploadUrl = `${process.env.BUNNY_STORAGE_HOST}/${process.env.BUNNY_STORAGE_ZONE}/${imageToUploadFileName}`;
+      const imageToUploadPublicUrl = `${process.env.BUNNY_STORAGE_PULL_ZONE}/${imageToUploadUrl.trim()}`;
+
+      const imageToUploadResponse = await fetch(imageToUploadPublicUrl, {
+        method: "PUT",
+        headers: {
+          "AccessKey": process.env.BUNNY_STORAGE_API_KEY,
+          "Content-type": "application/octet-stream" // mode de mise en ligne de l'image
+        },
+        body: imageBuffer // Image brut
+      });
+  
+      if(!imageToUploadResponse.ok) {
+        throw new AppError(`Error while uploading the image : ${response.statusText}`);
+      }
+
+      updatedData.coverImageUrl = imageToUploadPublicUrl; // Ajout de l'url de la nouvelle image
+      
+      // Gestion des tags
+      if(typeof tags !== "string") throw new Error();
+      
+      const tagNamesArray = JSON.parse(tags);
+      
+      if(!Array.isArray(tagNamesArray)) throw new Error(); // Vérifie si c'est un tableau
+
+      if(!areTagsSimilar(tagNamesArray, postToEdit.tags)) {
+        // Ici on utilise Promise car on doit attendre le résultat de plusieurs promesses (pour chaque tag). Si on attendait qu'une seule promesse alors on aurait juste "await findOrCreateTag(tag)".
+        // Promise permet également de lancer les promesses en parallèle
+        const tagIds = await Promise.all(tagNamesArray.map(tag => findOrCreateTag(tag))); // Récupération des ids des tags (vérifie si le tag existe déjà et le crée si ce n'est pas le cas)
+        updatedData.tags = tagIds;
+      }
+    }
+      
+    // Mise à jour du post
+    if(Object.keys(updatedData).length === 0) throw new Error(); // Vérifie que l'objet updatedData n'est pas vide et a au moins une propriété à mettre à jour
+
+    const updatedPost = await Post.findByIdAndUpdate(postToEdit._id, updatedData, { new: true }); // Met à jour le post et retourne le post mis à jour
+    
+    return { success: true, slug: updatedPost.slug };
 
   } catch(error) {
     console.error("Error while updating the post: ", error); // Uniquement côté serveur

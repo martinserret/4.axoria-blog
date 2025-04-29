@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { addPost } from "@/lib/serverActions/blog/postServerActions";
+import { editPost } from "@/lib/serverActions/blog/postServerActions";
 import { areTagsSimilar } from "@/lib/utils/general/utils";
 
 export default function ClientEditForm({ post }) {
@@ -49,15 +49,14 @@ export default function ClientEditForm({ post }) {
     }
 
     formData.set("tags", JSON.stringify(tags));
-    formData.set("slug", post.slug);
-    formData.set("postToEdit", post);
+    formData.set("postToEdit", JSON.stringify(post));
 
     serverValidationText.current.textContent = ""; // Réinitialise le texte de serveur validation
     submitButtonRef.current.textContent = "Updating Post..."; // Indique dans le bouton que la sauvegarde est en cours
     submitButtonRef.current.disabled = true; // Evite le spam click
 
     try {
-      const result = await addPost(formData);
+      const result = await editPost(formData);
 
       if(result.success) {
         submitButtonRef.current.textContent = "Post Updated ✅";
