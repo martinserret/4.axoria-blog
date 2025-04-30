@@ -29,7 +29,7 @@ export default function NavbarDropdown({ userId }) {
       });
 
       // Redirection si l'utilisateur se trouve sur une page privée
-      if(isPrivatePage(window.location.pathname)){
+      if(await isPrivatePage(window.location.pathname)){
         router.push("/signin");
       }
     }
