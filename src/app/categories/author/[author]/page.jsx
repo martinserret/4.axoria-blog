@@ -1,6 +1,7 @@
 import { getPostsByAuthor } from "@/lib/serverMethods/blog/postMethods";
 import BlogCard from "@/components/BlogCard";
 
+export const revalidate = 60; // Revalidation toutes les 60 secondes
 
 export default async function page({ params }) {
   const { author } = await params;

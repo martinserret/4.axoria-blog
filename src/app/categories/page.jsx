@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getTags } from "@/lib/serverMethods/blog/tagMethods";
 
+export const revalidate = 60; // Revalidation toutes les 60 secondes
+
 export default async function page() {
   const tags = await getTags();
   

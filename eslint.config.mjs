@@ -32,7 +32,7 @@ const eslintConfig = [
       },
     },
     rules: {
-      // ➕ Tes règles personnalisées
+      // Règles personnalisées
       "no-unused-vars": ["warn", { varsIgnorePattern: "^[A-Z_]" }],
       "prefer-arrow-callback": ["error"],
       "prefer-template": ["error"],
@@ -51,6 +51,11 @@ const eslintConfig = [
   ...compat.config({
     extends: ["next/core-web-vitals"], // ⚠️ uniquement des règles générales
   }),
+  {
+    rules: {
+      "react/no-unescaped-entities": "off", // Force la désactivation ici après le passage de compat
+    },
+  }
 ];
 
 export default eslintConfig;
