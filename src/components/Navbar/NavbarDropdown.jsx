@@ -6,11 +6,13 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { logout, isPrivatePage } from "@/lib/serverActions/session/sessionServerActions";
+import { useAuth } from "@/app/AuthContext";
 
 export default function NavbarDropdown({ userId }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef();
   const router = useRouter();
+  const { setIsAuthenticated } = useAuth();
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -18,6 +20,11 @@ export default function NavbarDropdown({ userId }) {
 
   async function handleLogout() {
     await logout();
+    setIsAuthenticated({
+      loading: false,
+      isConnected: false,
+      userId: null
+    });
 
     // Redirection si l'utilisateur se trouve sur une page privée
     if(isPrivatePage(window.location.pathname)){

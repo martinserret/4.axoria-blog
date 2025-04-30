@@ -129,7 +129,7 @@ export async function login(formData) {
     });
 
     revalidateTag("auth-session"); // On revalide le cache de la session pour que le middleware puisse rediriger l'utilisateur vers la page de connexion
-    return { success: true };
+    return { success: true, userId: user._id.toString() };
   } catch(error) {
     console.error("Error while log in: ", error); // Uniquement côté serveur
     

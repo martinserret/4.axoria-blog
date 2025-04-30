@@ -2,6 +2,7 @@ import "./globals.css";
 import { Roboto, Inter } from "next/font/google";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar/Navbar";
+import { AuthProvider } from "./AuthContext";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -25,11 +26,13 @@ export default function RootLayout({ children }) {
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       
       <body className={`flex min-h-full flex-col ${roboto.variable} ${inter.variable} antialiased`}>
-        <Navbar />
+        <AuthProvider>
+          <Navbar />
         
-        <main className="grow">
-          {children}
-        </main>
+          <main className="grow">
+            {children}
+          </main>
+        </AuthProvider>
 
         <Footer />
       </body>
