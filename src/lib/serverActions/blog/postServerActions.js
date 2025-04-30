@@ -248,6 +248,8 @@ export async function editPost(formData) {
 
     const updatedPost = await Post.findByIdAndUpdate(postToEdit._id, updatedData, { new: true }); // Met à jour le post et retourne le post mis à jour
     
+    revalidatePath(`/article/${postToEdit.slug}`); // Revalidation de la page de l'article pour éviter de la garder en cache et ne plus servir l'article qui n'existe plus + recharge l'html de la page en cours
+
     return { success: true, slug: updatedPost.slug };
 
   } catch(error) {

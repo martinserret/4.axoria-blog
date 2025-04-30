@@ -18,7 +18,7 @@ export default async function page({ params }) {
               <Link href={`/article/${post.slug}`} className="mr-auto underline text-lg underline-offset-2">
                 {post.title}
               </Link>
-              <Link href={`/dashboard/edit/${post.slug}`} className="bg-indigo-500 hover:bg-indigo-700 min-w-20 text-center text-white font-bold py-2 px-4 rounded mr-2">
+              <Link href={`/dashboard/edit/${post._id}`} className="bg-indigo-500 hover:bg-indigo-700 min-w-20 text-center text-white font-bold py-2 px-4 rounded mr-2">
                 Edit
               </Link>
               <DeletePostButton id={post._id.toString()}/> 
