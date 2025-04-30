@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <Navbar />
         
-          <main className="grow">
+          <main className="grow relative">
             {children}
           </main>
         </AuthProvider>
