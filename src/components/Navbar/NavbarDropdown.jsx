@@ -19,16 +19,19 @@ export default function NavbarDropdown({ userId }) {
   }
 
   async function handleLogout() {
-    await logout();
-    setIsAuthenticated({
-      loading: false,
-      isConnected: false,
-      userId: null
-    });
+    const result = await logout();
 
-    // Redirection si l'utilisateur se trouve sur une page privée
-    if(isPrivatePage(window.location.pathname)){
-      router.push("/signin");
+    if(result.success) {
+      setIsAuthenticated({
+        loading: false,
+        isConnected: false,
+        userId: null
+      });
+
+      // Redirection si l'utilisateur se trouve sur une page privée
+      if(isPrivatePage(window.location.pathname)){
+        router.push("/signin");
+      }
     }
   }
 

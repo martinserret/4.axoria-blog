@@ -19,7 +19,7 @@ export async function middleware(request) {
   const { authorized } = await authResponse.json();
 
   if(!authorized) {
-    return NextResponse.redirect(new URL("/signin", request.url));
+    return NextResponse.redirect(new URL("/signin", request.nextUrl.origin));
   }
 
   // Si l'utilisateur est autorisé, le middleware permet à la requête de continuer vers la route demandée.
