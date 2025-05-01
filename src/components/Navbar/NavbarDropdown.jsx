@@ -72,14 +72,14 @@ export default function NavbarDropdown({ userId }) {
       { isOpen && (
         <ul className="absolute right-0 top-10 w-[250px] border-b border-x border-zinc-300">
           <li className="bg-slate-50 border-b border-slate-300 hover:bg-slate-200">
-            <Link href={`/dashboard/${userId}`} className="block p-4" onClick={closeDropdown}>Dashboard</Link>
+            <Link href={`/dashboard/${userId}`} className="block p-4" onClick={closeDropdown}>
+              Dashboard
+            </Link>
           </li>
           <li className="bg-slate-50 hover:bg-slate-200">
-            <button 
-              onClick={handleLogout} 
-              className="w-full p-4 text-left cursor-pointer"
-            >
-              Sign out</button>
+            <button onClick={handleLogout} className="w-full p-4 text-left cursor-pointer">
+              Sign out
+            </button>
           </li>
         </ul>
       )}
